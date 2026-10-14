@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Viblo Studio – short-form video, voiceover & image maker</title>
+<style>
+:root{--bg:#fff;--bg2:#f5f4fb;--card:#fff;--tx:#17142b;--mu:#6b6784;--bd:#e4e1f2;--ac:#7c3aed;--ac2:#ec4899;--r:14px;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d0b1a;--bg2:#15122a;--card:#1a1633;--tx:#f1eefc;--mu:#9a95b8;--bd:#2c2750}}
+:root[data-theme="dark"]{--bg:#0d0b1a;--bg2:#15122a;--card:#1a1633;--tx:#f1eefc;--mu:#9a95b8;--bd:#2c2750}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;align-items:center;gap:16px;padding:12px 20px;background:var(--bg);border-bottom:1px solid var(--bd)}
+.logo{font-weight:800;font-size:20px;display:flex;align-items:center;gap:8px}
+.logo i{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,var(--ac),var(--ac2));display:inline-block}
+nav{display:flex;gap:4px;flex:1;overflow-x:auto}
+nav button,.btn{font:inherit;border:1px solid transparent;background:none;color:var(--mu);padding:8px 14px;border-radius:999px;cursor:pointer;transition:.15s;white-space:nowrap}
+nav button:hover{color:var(--tx)}nav button.on{background:var(--bg2);color:var(--tx);font-weight:600}
+.btn{border-color:var(--bd);color:var(--tx);background:var(--card)}.btn:hover{border-color:var(--ac)}
+.btn.p{background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff;border:0;font-weight:600}.btn.p:hover{filter:brightness(1.1)}
+.btn.d{color:#e11d48}
+main{max-width:1100px;margin:0 auto;padding:24px 20px 60px}
+.hero{text-align:center;padding:10px 0 22px}.hero h1{font-size:clamp(26px,5vw,40px);margin:0 0 6px;letter-spacing:-.02em}
+.hero h1 span{background:linear-gradient(135deg,var(--ac),var(--ac2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--mu);margin:0}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:800px){.grid{grid-template-columns:1fr}header{flex-wrap:wrap}}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:18px}
+label{display:block;font-size:13px;color:var(--mu);margin:12px 0 4px;font-weight:600}
+textarea,select,input[type=text],input[type=number]{width:100%;font:inherit;color:var(--tx);background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:10px}
+textarea{min-height:150px;resize:vertical}textarea:focus,select:focus,input:focus{outline:2px solid var(--ac);border-color:transparent}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px}.row>*{flex:0 0 auto}.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stage{display:flex;justify-content:center;background:var(--bg2);border-radius:var(--r);padding:14px}
+canvas{max-width:100%;max-height:520px;border-radius:10px;box-shadow:0 8px 30px #0003;background:#000}
+.note{font-size:13px;color:var(--mu);background:var(--bg2);border-radius:10px;padding:10px 12px;margin-top:12px}
+.proj{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--bd)}.proj:last-child{border:0}
+.tag{font-size:11px;padding:2px 8px;border-radius:99px;background:var(--bg2);color:var(--mu);margin-left:6px}
+.sec{display:none;animation:in .25s}.sec.on{display:block}@keyframes in{from{opacity:0;transform:translateY(6px)}}
+#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--tx);color:var(--bg);padding:10px 18px;border-radius:999px;opacity:0;pointer-events:none;transition:.25s;z-index:20}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+dialog{border:1px solid var(--bd);border-radius:var(--r);background:var(--card);color:var(--tx);max-width:420px;width:92%}dialog::backdrop{background:#0008}
+footer{text-align:center;color:var(--mu);font-size:12px;padding:20px}
+</style></head><body>
+<header>
+ <div class="logo"><i></i>Viblo Studio</div>
+ <nav id="nav"><button data-t="video" class="on">Video</button><button data-t="voice">Voiceover</button><button data-t="short">Shorts</button><button data-t="image">Images</button><button data-t="proj">Projects</button></nav>
+ <button class="btn" id="themeBtn">Theme</button><button class="btn" id="setBtn">Settings</button>
+</header>
+<main>
+<div class="hero"><h1>Make short-form content <span>instantly</span></h1><p>No sign-up. Everything runs in your browser.</p></div>
+
+<section class="sec on" id="video"><div class="grid">
+ <div class="card">
+  <label>Script (one scene per line)</label>
+  <textarea id="script">Stop scrolling.
+Make a short video in under a minute.
+Type a line. Pick a style.
+Hit export and post it.</textarea>
+  <div class="two"><div><label>Aspect ratio</label><select id="vAsp"><option value="9:16">9:16 – TikTok / Reels</option><option value="1:1">1:1 – Square</option><option value="16:9">16:9 – YouTube</option></select></div>
+  <div><label>Style</label><select id="vPal"></select></div></div>
+  <div class="two"><div><label>Seconds per scene</label><input type="number" id="vDur" value="2.5" min="1" max="10" step="0.5"></div>
+  <div><label>Narration while previewing</label><select id="vNar"><option value="0">Off</option><option value="1">On (browser voice)</option></select></div></div>
+  <div class="row"><button class="btn p" id="vPlay">▶ Preview</button><button class="btn" id="vExp">Export WebM</button><button class="btn" id="vSave">Save project</button></div>
+  <div class="note">Scenes are rendered locally as animated text cards. This app does not generate AI footage. Exported video has no audio track.</div>
+ </div>
+ <div class="stage"><canvas id="vc"></canvas></div>
+</div></section>
+
+<section class="sec" id="voice"><div class="card" style="max-width:640px;margin:auto">
+ <label>Text to read</label><textarea id="tText">Welcome to Viblo Studio. This voice is generated by your browser.</textarea>
+ <label>Voice</label><select id="tVoice"></select>
+ <div class="two"><div><label>Speed <span id="rv">1</span></label><input type="range" id="tRate" min="0.5" max="2" step="0.1" value="1" style="width:100%"></div>
+ <div><label>Pitch <span id="pv">1</span></label><input type="range" id="tPitch" min="0" max="2" step="0.1" value="1" style="width:100%"></div></div>
+ <div class="row"><button class="btn p" id="tSpeak">🔊 Speak</button><button class="btn" id="tStop">Stop</button><button class="btn" id="tCopy">Copy text</button></div>
+ <div class="note">Uses your device's built-in speech engine. Browsers don't allow saving this audio as a file, so there is no audio download.</div>
+</div></section>
+
+<section class="sec" id="short"><div class="grid">
+ <div class="card">
+  <label>Main video (a file you own or have rights to)</label><input type="file" id="sMain" accept="video/*">
+  <label>Gameplay for the bottom (optional, e.g. your own Minecraft parkour clip)</label><input type="file" id="sGame" accept="video/*">
+  <div class="two"><div><label>Layout</label><select id="sLay"><option value="split">Split: video top, gameplay bottom</option><option value="twitch">Twitch style</option><option value="full">Video only</option></select></div>
+  <div><label>Short length (s)</label><select id="sLen"><option>15</option><option>30</option><option selected>45</option><option>60</option></select></div></div>
+  <div class="row"><button class="btn p" id="sBtnBest">Find best part</button><span style="color:var(--mu)">Start (s)</span><input type="number" id="sStart" value="0" min="0" step="0.5" style="width:90px"></div>
+  <label>Effects</label>
+  <div class="row" style="margin:0"><select id="sFx" style="width:auto"><option value="none">No filter</option><option value="vivid">Vivid</option><option value="bw">Black & white</option><option value="sepia">Sepia</option><option value="warm">Warm</option></select>
+  <label style="display:inline-flex;gap:6px;align-items:center;margin:0"><input type="checkbox" id="sVig"> Vignette</label><label style="display:inline-flex;gap:6px;align-items:center;margin:0"><input type="checkbox" id="sZoom"> Pulse zoom</label></div>
+  <label>Twitch chat lines ("name: message", used in Twitch layout)</label><textarea id="sChat" style="min-height:70px">viewer1: no way
+viewer2: W clip
+viewer3: LETS GOOO</textarea>
+  <label>Add text</label><input type="text" id="oText" placeholder="Text overlay">
+  <div class="row" style="margin-top:8px"><select id="oPos" style="width:auto"><option value="top">Top</option><option value="mid">Middle</option><option value="bot" selected>Bottom</option></select><input type="color" id="oCol" value="#ffffff"><input type="number" id="oSize" value="52" min="20" max="120" style="width:70px" title="Size"><input type="number" id="oS" placeholder="from s" style="width:80px"><input type="number" id="oE" placeholder="to s" style="width:80px"><button class="btn" id="oAdd">Add</button></div>
+  <div id="oList"></div>
+  <div class="row"><button class="btn p" id="sBtnPlay">▶ Preview</button><button class="btn" id="sBtnExp">Export WebM</button></div>
+  <div class="note">A web page can't download or read YouTube videos, so links can't be pasted here. Use a file you have rights to. "Best part" picks the loudest stretch of audio, not the most interesting content. Export records in real time and keeps the main video's audio.</div>
+ </div>
+ <div class="stage"><canvas id="sc"></canvas></div>
+</div></section>
+
+<section class="sec" id="image"><div class="grid">
+ <div class="card">
+  <label>Headline text</label><textarea id="iText" style="min-height:90px">Your big idea here</textarea>
+  <div class="two"><div><label>Size</label><select id="iAsp"><option value="1:1">1:1 Square</option><option value="9:16">9:16 Story</option><option value="16:9">16:9 Banner</option></select></div>
+  <div><label>Style</label><select id="iPal"></select></div></div>
+  <div class="row"><button class="btn p" id="iDl">Download PNG</button><button class="btn" id="iSave">Save project</button></div>
+  <div class="note">Creates graphic text cards locally. It is not an AI image generator.</div>
+ </div>
+ <div class="stage"><canvas id="ic"></canvas></div>
+</div></section>
+
+<section class="sec" id="proj"><div class="card" style="max-width:720px;margin:auto">
+ <div class="row" style="margin:0 0 6px"><b style="flex:1">Saved projects</b><button class="btn" id="pExp">Export JSON</button><button class="btn" id="pImp">Import JSON</button><input type="file" id="pFile" accept=".json" hidden></div>
+ <div id="plist"></div>
+</div></section>
+</main>
+<footer>Independent, Viblo-inspired recreation. Not affiliated with viblo.ai.</footer>
+
+<dialog id="dlg"><h3 style="margin-top:0">Settings</h3>
+ <p style="color:var(--mu)">Projects are stored only in this browser. No account and no API keys are used here, so real AI generation is unavailable.</p>
+ <div class="row"><button class="btn d" id="clr">Delete all projects</button><button class="btn" id="cls">Close</button></div></dialog>
+<div id="toast"></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const PAL={Sunset:['#7c3aed','#ec4899'],Ocean:['#0ea5e9','#1e3a8a'],Forest:['#10b981','#064e3b'],Fire:['#f59e0b','#dc2626'],Midnight:['#1e1b4b','#0f172a'],Mono:['#f5f5f5','#a3a3a3']};
+const DIM={'9:16':[360,640],'1:1':[480,480],'16:9':[640,360]};
+for(const s of ['vPal','iPal'])$(s).innerHTML=Object.keys(PAL).map(k=>`<option>${k}</option>`).join('');
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),2200)}
+function load(){try{return JSON.parse(localStorage.getItem('vs_proj')||'[]')}catch(e){return []}}
+function store(a){try{localStorage.setItem('vs_proj',JSON.stringify(a));return true}catch(e){toast('Storage unavailable');return false}}
+
+// tabs
+function tab(t){document.querySelectorAll('.sec').forEach(s=>s.classList.toggle('on',s.id===t));document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));if(t==='proj')renderProj();if(t==='image')drawImg()}
+$('nav').onclick=e=>{if(e.target.dataset.t)tab(e.target.dataset.t)};
+$('themeBtn').onclick=()=>{const r=document.documentElement,d=getComputedStyle(r).getPropertyValue('--bg').trim()==='#fff';r.dataset.theme=d?'dark':'light'};
+$('setBtn').onclick=()=>$('dlg').showModal();$('cls').onclick=()=>$('dlg').close();
+$('clr').onclick=()=>{if(confirm('Delete all saved projects?')){store([]);renderProj();toast('Deleted');$('dlg').close()}};
+
+// drawing
+function wrap(c,text,max){const w=text.split(/\s+/),L=[];let l='';for(const x of w){const t=l?l+' '+x:x;if(c.measureText(t).width>max&&l){L.push(l);l=x}else l=t}if(l)L.push(l);return L}
+function card(cv,text,pal,p=1,idx=0){
+ const c=cv.getContext('2d'),W=cv.width,H=cv.height,[a,b]=PAL[pal];
+ const g=c.createLinearGradient(0,0,W*(.4+.3*Math.sin(idx)),H);g.addColorStop(0,a);g.addColorStop(1,b);c.fillStyle=g;c.fillRect(0,0,W,H);
+ c.fillStyle='#ffffff18';c.beginPath();c.arc(W*(.8-.1*p),H*.2,W*.35,0,7);c.fill();
+ const dark=pal==='Mono';c.fillStyle=dark?'#111':'#fff';c.textAlign='center';c.textBaseline='middle';
+ let fs=Math.round(W/9);c.font=`800 ${fs}px sans-serif`;let L=wrap(c,text,W*.82);
+ while(L.length*fs*1.2>H*.7&&fs>12){fs-=2;c.font=`800 ${fs}px sans-serif`;L=wrap(c,text,W*.82)}
+ const e=Math.min(1,p*3),off=(1-e)*30,y0=H/2-(L.length-1)*fs*.6+off;
+ c.globalAlpha=e;L.forEach((l,i)=>c.fillText(l,W/2,y0+i*fs*1.2));c.globalAlpha=1;
+ c.fillStyle=dark?'#1118':'#fff9';c.fillRect(W*.1,H-14,W*.8*(0.05+0.95*Math.min(1,p)),4);
+}
+function size(cv,asp){[cv.width,cv.height]=DIM[asp]}
+const scenes=()=>$('script').value.split('\n').map(s=>s.trim()).filter(Boolean);
+const vc=$('vc'),ic=$('ic');let playing=false;
+function vIdle(){const s=scenes();size(vc,$('vAsp').value);card(vc,s[0]||'Type a script',$('vPal').value,1,0)}
+function drawImg(){size(ic,$('iAsp').value);card(ic,$('iText').value||' ',$('iPal').value,1,1)}
+['script','vAsp','vPal'].forEach(i=>$(i).oninput=()=>{if(!playing)vIdle()});
+['iText','iAsp','iPal'].forEach(i=>$(i).oninput=drawImg);
+
+function play(onEnd){
+ const S=scenes();if(!S.length){toast('Add at least one line');return false}
+ if(playing)return false;playing=true;size(vc,$('vAsp').value);
+ const d=Math.max(1,+$('vDur').value||2.5)*1000,pal=$('vPal').value,nar=$('vNar').value==='1'&&'speechSynthesis' in window;
+ let last=-1,t0=performance.now();speechSynthesis.cancel();
+ (function f(now){const t=now-t0,i=Math.floor(t/d);
+  if(i>=S.length){playing=false;vIdle();onEnd&&onEnd();return}
+  if(i!==last){last=i;if(nar)speechSynthesis.speak(new SpeechSynthesisUtterance(S[i]))}
+  card(vc,S[i],pal,(t%d)/d*2,i);requestAnimationFrame(f)})(t0);
+ return true}
+$('vPlay').onclick=()=>play();
+$('vExp').onclick=()=>{
+ if(!window.MediaRecorder||!vc.captureStream){toast('Export not supported in this browser');return}
+ const mt=['video/webm;codecs=vp9','video/webm'].find(m=>MediaRecorder.isTypeSupported(m));
+ if(!mt){toast('WebM recording not supported');return}
+ const wasNar=$('vNar').value;$('vNar').value='0';
+ const rec=new MediaRecorder(vc.captureStream(30),{mimeType:mt}),ch=[];
+ rec.ondataavailable=e=>e.data.size&&ch.push(e.data);
+ rec.onstop=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(ch,{type:'video/webm'}));a.download='viblo-video.webm';a.click();toast('Video exported');$('vNar').value=wasNar};
+ rec.start();if(!play(()=>setTimeout(()=>rec.stop(),200))){rec.stop();$('vNar').value=wasNar}else toast('Recording…')};
+$('iDl').onclick=()=>{drawImg();const a=document.createElement('a');a.href=ic.toDataURL('image/png');a.download='viblo-image.png';a.click();toast('Image downloaded')};
+
+// voiceover
+let voices=[];function lv(){voices=speechSynthesis.getVoices();$('tVoice').innerHTML=voices.map((v,i)=>`<option value="${i}">${v.name} (${v.lang})</option>`).join('')||'<option>Default</option>'}
+if('speechSynthesis' in window){lv();speechSynthesis.onvoiceschanged=lv}else $('tSpeak').disabled=true;
+$('tRate').oninput=e=>$('rv').textContent=e.target.value;$('tPitch').oninput=e=>$('pv').textContent=e.target.value;
+$('tSpeak').onclick=()=>{const u=new SpeechSynthesisUtterance($('tText').value);u.voice=voices[+$('tVoice').value]||null;u.rate=+$('tRate').value;u.pitch=+$('tPitch').value;speechSynthesis.cancel();speechSynthesis.speak(u)};
+$('tStop').onclick=()=>speechSynthesis.cancel();
+$('tCopy').onclick=async()=>{try{await navigator.clipboard.writeText($('tText').value);toast('Copied')}catch(e){$('tText').select();toast('Press Ctrl/Cmd+C to copy')}};
+
+// projects
+function save(p){const a=load();a.unshift({id:Date.now(),date:new Date().toLocaleString(),...p});if(store(a))toast('Project saved')}
+$('vSave').onclick=()=>save({type:'video',name:scenes()[0]||'Untitled',data:{script:$('script').value,asp:$('vAsp').value,pal:$('vPal').value,dur:$('vDur').value}});
+$('iSave').onclick=()=>save({type:'image',name:$('iText').value.slice(0,40)||'Untitled',data:{text:$('iText').value,asp:$('iAsp').value,pal:$('iPal').value}});
+function renderProj(){const a=load(),e=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+ $('plist').innerHTML=a.length?a.map(p=>`<div class="proj"><div><b>${e(p.name)}</b><span class="tag">${p.type}</span><br><small style="color:var(--mu)">${p.date}</small></div><div><button class="btn" data-o="${p.id}">Open</button> <button class="btn d" data-x="${p.id}">Delete</button></div></div>`).join(''):'<p style="color:var(--mu)">No saved projects yet. Save one from the Video or Images tab.</p>'}
+$('plist').onclick=e=>{const a=load(),o=e.target.dataset.o,x=e.target.dataset.x;
+ if(x){store(a.filter(p=>p.id!=x));renderProj()}
+ if(o){const p=a.find(p=>p.id==o);if(!p)return;const d=p.data;
+  if(p.type==='video'){$('script').value=d.script;$('vAsp').value=d.asp;$('vPal').value=d.pal;$('vDur').value=d.dur;tab('video');vIdle()}
+  else{$('iText').value=d.text;$('iAsp').value=d.asp;$('iPal').value=d.pal;tab('image')}}};
+$('pExp').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(load(),null,2)],{type:'application/json'}));a.download='viblo-projects.json';a.click()};
+$('pImp').onclick=()=>$('pFile').click();
+$('pFile').onchange=async e=>{try{const j=JSON.parse(await e.target.files[0].text());if(!Array.isArray(j))throw 0;store([...j.filter(p=>p&&p.type&&p.data),...load()]);renderProj();toast('Imported')}catch(x){toast('Invalid project file')}e.target.value=''};
+// ---- Shorts ----
+const sc=$('sc'),sx=sc.getContext('2d');sc.width=540;sc.height=960;
+const mv=document.createElement('video'),gv=document.createElement('video');
+mv.playsInline=gv.playsInline=true;gv.muted=true;gv.loop=true;
+let over=[],playingS=false,sAC,sDest,raf;
+const FX={none:'none',vivid:'saturate(1.6) contrast(1.1)',bw:'grayscale(1)',sepia:'sepia(.8)',warm:'sepia(.3) saturate(1.4)'};
+const sEsc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function fit(c,v,x,y,w,h){const vw=v.videoWidth,vh=v.videoHeight;if(!vw)return;const r=Math.max(w/vw,h/vh),dw=vw*r,dh=vh*r;c.save();c.beginPath();c.rect(x,y,w,h);c.clip();c.drawImage(v,x+(w-dw)/2,y+(h-dh)/2,dw,dh);c.restore()}
+function sDraw(){
+ const W=540,H=960,c=sx,lay=$('sLay').value,t=Math.max(0,mv.currentTime-(+$('sStart').value||0));
+ c.fillStyle='#000';c.fillRect(0,0,W,H);
+ if(!mv.videoWidth){c.fillStyle='#fff';c.font='600 24px sans-serif';c.textAlign='center';c.fillText('Load a video to begin',W/2,H/2);return}
+ const hasG=gv.videoWidth&&lay==='split',mh=hasG?H*.5:H;
+ c.save();c.filter=FX[$('sFx').value];
+ if($('sZoom').checked){const z=1.05+.04*Math.sin(t*3);c.translate(W/2,mh/2);c.scale(z,z);c.translate(-W/2,-mh/2)}
+ fit(c,mv,0,0,W,mh);c.restore();
+ if(hasG)fit(c,gv,0,mh,W,H-mh);
+ if(lay==='twitch'){
+  c.strokeStyle='#9146ff';c.lineWidth=10;c.strokeRect(5,5,W-10,H-10);
+  c.fillStyle='#e91916';c.fillRect(24,28,84,34);c.fillStyle='#fff';c.font='700 18px sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('● LIVE',66,45);
+  const L=$('sChat').value.split('\n').filter(Boolean),vis=L.filter((_,i)=>i*1.5<=t).slice(-6);
+  c.textAlign='left';c.font='600 20px sans-serif';
+  vis.forEach((l,i)=>{const k=l.indexOf(':'),n=k>0?l.slice(0,k):'',m=k>0?l.slice(k+1).trim():l,y=H*.62+i*34;
+   c.fillStyle='#000a';c.fillRect(20,y-14,W*.6,30);let h=0;for(const ch of n)h=(h*31+ch.charCodeAt(0))%360;
+   c.fillStyle=`hsl(${h},80%,65%)`;c.fillText(n,28,y);const nw=c.measureText(n+' ').width;c.fillStyle='#fff';c.fillText(m,28+nw,y)})}
+ if($('sVig').checked){const g=c.createRadialGradient(W/2,H/2,H*.3,W/2,H/2,H*.7);g.addColorStop(0,'#0000');g.addColorStop(1,'#000b');c.fillStyle=g;c.fillRect(0,0,W,H)}
+ for(const o of over){if(t<o.s||t>o.e)continue;c.font=`800 ${o.z}px sans-serif`;c.textAlign='center';c.textBaseline='middle';c.lineWidth=o.z/6;c.lineJoin='round';c.strokeStyle='#000';
+  const y={top:H*.14,mid:H*.5,bot:H*.82}[o.p],L=wrap(c,o.t,W*.86);
+  L.forEach((l,i)=>{const yy=y+(i-(L.length-1)/2)*o.z*1.15;c.strokeText(l,W/2,yy);c.fillStyle=o.c;c.fillText(l,W/2,yy)})}
+}
+function loop(){sDraw();if(!playingS)return;const st=+$('sStart').value||0;if(mv.currentTime>=st+(+$('sLen').value)||mv.ended){sHalt();return}raf=requestAnimationFrame(loop)}
+function sGo(){
+ if(!mv.videoWidth){toast('Load a main video first');return false}
+ if(playingS)return false;
+ if(!sAC){sAC=new AudioContext();const src=sAC.createMediaElementSource(mv);sDest=sAC.createMediaStreamDestination();src.connect(sDest);src.connect(sAC.destination)}
+ sAC.resume();mv.currentTime=+$('sStart').value||0;gv.currentTime=0;playingS=true;$('sBtnPlay').textContent='■ Stop';
+ Promise.all([mv.play(),gv.src?gv.play():0]).then(loop).catch(()=>{toast('Playback was blocked');sHalt()});
+ return true}
+function sHalt(){playingS=false;mv.pause();gv.pause();cancelAnimationFrame(raf);sDraw();$('sBtnPlay').textContent='▶ Preview';if(sHalt.cb){sHalt.cb();sHalt.cb=null}}
+$('sBtnPlay').onclick=()=>playingS?sHalt():sGo();
+$('sBtnExp').onclick=()=>{
+ if(!window.MediaRecorder||!sc.captureStream)return toast('Export not supported in this browser');
+ const mt=['video/webm;codecs=vp9,opus','video/webm'].find(m=>MediaRecorder.isTypeSupported(m));
+ if(!mt)return toast('WebM recording not supported');
+ if(!sGo())return;
+ const st=new MediaStream([...sc.captureStream(30).getVideoTracks(),...sDest.stream.getAudioTracks()]),rec=new MediaRecorder(st,{mimeType:mt}),ch=[];
+ rec.ondataavailable=e=>e.data.size&&ch.push(e.data);
+ rec.onstop=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(ch,{type:'video/webm'}));a.download='viblo-short.webm';a.click();toast('Short exported')};
+ rec.start();sHalt.cb=()=>setTimeout(()=>rec.stop(),200);toast('Recording in real time…')};
+function loadV(el,f){if(f){el.src=URL.createObjectURL(f);el.load()}}
+$('sMain').onchange=e=>{loadV(mv,e.target.files[0]);$('sStart').value=0};
+$('sGame').onchange=e=>{loadV(gv,e.target.files[0])};
+mv.onloadeddata=gv.onloadeddata=()=>{if(!playingS)sDraw()};
+mv.onseeked=()=>{if(!playingS)sDraw()};
+$('sStart').oninput=()=>{if(mv.videoWidth&&!playingS)mv.currentTime=+$('sStart').value||0};
+['sLay','sFx','sVig','sZoom','sChat','sLen'].forEach(i=>$(i).oninput=()=>{if(!playingS)sDraw()});
+$('sBtnBest').onclick=async()=>{
+ const f=$('sMain').files[0];if(!f)return toast('Load a main video first');
+ toast('Analysing audio…');
+ try{
+  const ac=new AudioContext(),buf=await ac.decodeAudioData(await f.arrayBuffer());ac.close();
+  const d=buf.getChannelData(0),sr=buf.sampleRate,n=Math.floor(buf.duration),a=[];
+  for(let i=0;i<n;i++){let s=0,k=0;for(let j=i*sr;j<(i+1)*sr;j+=8){s+=d[j]*d[j];k++}a.push(Math.sqrt(s/k))}
+  const L=Math.min(+$('sLen').value,n);let cur=0,best=0,bs=0;
+  for(let i=0;i<n;i++){cur+=a[i];if(i>=L)cur-=a[i-L];if(i>=L-1&&cur>best){best=cur;bs=i-L+1}}
+  $('sStart').value=bs;mv.currentTime=bs;toast('Best part starts at '+Math.floor(bs/60)+':'+String(bs%60).padStart(2,'0')+' (loudest stretch)');
+ }catch(e){toast('Could not analyse this file')}};
+$('oAdd').onclick=()=>{const t=$('oText').value.trim();if(!t)return toast('Type some text');
+ over.push({t,p:$('oPos').value,c:$('oCol').value,z:+$('oSize').value||52,s:+$('oS').value||0,e:+$('oE').value||999});$('oText').value='';$('oS').value=$('oE').value='';renderO();if(!playingS)sDraw()};
+function renderO(){$('oList').innerHTML=over.map((o,i)=>`<div class="proj"><span>${sEsc(o.t)}<span class="tag">${o.p} ${o.s}–${o.e>=999?'end':o.e}s</span></span><span><button class="btn" data-e="${i}">Edit</button> <button class="btn d" data-i="${i}">Remove</button></span></div>`).join('')}
+$('oList').onclick=e=>{const d=e.target.dataset;
+ if(d.e!==undefined){const o=over.splice(+d.e,1)[0];$('oText').value=o.t;$('oPos').value=o.p;$('oCol').value=o.c;$('oSize').value=o.z;$('oS').value=o.s||'';$('oE').value=o.e>=999?'':o.e}
+ else if(d.i!==undefined)over.splice(+d.i,1);else return;
+ renderO();if(!playingS)sDraw()};
+vIdle();drawImg();sDraw();
+</script></body></html>
